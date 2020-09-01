@@ -1,8 +1,12 @@
 package com.luban;
 
+import javafx.scene.effect.SepiaTone;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -46,6 +50,7 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
  * extends AbstractInstanceRegistry(服务注册) implements InstanceRegistry
  * AbstractInstanceRegistry 真正做服务注册  ReentrantReadWriteLock eadWriteLock.readLock()
  * ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>> registry
+ * （微服务名字  {微服务几集群 {集群中的每个实例 微服务ip  s实例对象 ）
  * 个微服务注册中心（可以是Eureka或者Consul或者你自己写的一个微服务注册中心）
  * 肯定会在内存中有一个服务注册表的概念。
  * 能不能尽量在写数据期间还保证可以继续读数据呢？大量加读锁的时候，
@@ -55,10 +60,55 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
  * 断点调试的时候走到 Map<String, Lease<InstanceInfo>> gMap = registry.get(registrant.getAppName());
  * 发现是有值得，是因为时间过长，eureka抛弃了本次请求，又开了一个线程注册，并发注册的原因
  * 客户端在尝试跟服务端注册的时候，会判断你当前这个注册很久（有个超时判断）没有成功的话，会中断，开启一个新的去重试
+ * 对于有冲突的是根据存在的时间戳和当前注册的时间戳对比，哪个大用哪个。不管是否有冲突，都会new 一个新的
+ *  Lease(租赁)<InstanceInfo> lease put到map中
+ *  关于lease evictionTimestamp 服务剔除时间  registrationTimestamp 服务注册时间
+ *  serviceUpTimestamp 回复正常工作时间
+ *  lastUpdateTimestamp 最后操作时间
+ *  Lease（租赁） renew(续约) cancle（）
+ *
+ *
+ *  instanceresource 操作单个实例
+ *   public Response renewLease( 心跳续约方法
+ *   方法调用链和注册类似，也是InstanceRegistry renew  发布监听事件 PeerAwareInstanceRegistryImpl
+ *   renew （调用父类AbstractInstanceRegistry 完成
+ *   真实续约）再
+ *   PeerAwareInstanceRegistryImpl  replicateToPeers集群同步
+ *   客户端续约时候如果获取实例返回为空，那么客户端会将心跳续约改成服务注册 duration 设置的过期时间
+ *   心跳续约最终调用lease的renew方法（lastUpdateTimestamp = System.currentTimeMillis() + duration;）
+ *   举例说明：假设续约间隔是30s 最后操作时间是21:44:30 续约前过期时间是21:45:00
+ *   执行一次心跳续约后时间是21:45:00 续约后过期时间是21:45:30
+ *   心跳续只是更改lastUpdateTimestamp
+ *：
+ *   判断是否过期  additionalLeaseMs 集群同步时间差（源码注释上这段是有bug的 是因为在续约的时候计算
+ *   lastUpdateTimestamp 这个值本应该是system时间，不应该加上duration
+ *
+ *   检查给定的{@link com.netflix.appinfo.InstanceInfo}的租约是否已到期。
+ *   * *请注意，由于renew（）做错了事，并将lastUpdateTimestamp设置为+ duration多于*持续时间，
+ *   因此有效期实际上是2 *持续时间。
+ *   这是一个小错误，仅会影响* *由于可能会对现有使用产生广泛影响，因此*无法解决。
+ *   ）
+ *   public boolean isExpired(long additionalLeaseMs) {
+ *         return (evictionTimestamp > 0 || System.currentTimeMillis() > (lastUpdateTimestamp + duration + additionalLeaseMs));
+ *     }
+ *
+ *    PeerAwareInstanceRegistryImpl  replicateToPeers做集群同步
+ *     public enum Action {
+ *         Heartbeat, Register, Cancel, StatusUpdate, DeleteStatusOverride;
+ *         这些操作需要同步集群
+ * private void replicateToPeers(Action action, String appName, String id,
+  *boolean isReplication){   isReplication 是否来自于集群同步
+ * eureka集群同步实现是发一个同样的http请求给其他的server,比如eureka server1 server2 server3
+ * ,user客户端(选取server1)发送量一个
+ * register.do 给server1，注册成功后， 那么server1会向server2,server3 都发一个同样的请求
+ * 怎么解决server1发给server2，server2发给server3的问题? isisReplication防止死循环套娃调用
+ * 判断完之后还会在判断是否是自己，会剔除自己同步，然后就是一路执行到jersey springcloud下的风险装的
+ * resetTemplate
  */
 public class AppEureka3000 {
 
     public static void main(String[] args) {
+        Set set= new HashSet();
         SpringApplication.run(AppEureka3000.class);
     }
 }
