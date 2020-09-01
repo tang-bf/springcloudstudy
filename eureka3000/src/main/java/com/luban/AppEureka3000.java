@@ -101,7 +101,10 @@ import java.util.Set;
  * eureka集群同步实现是发一个同样的http请求给其他的server,比如eureka server1 server2 server3
  * ,user客户端(选取server1)发送量一个
  * register.do 给server1，注册成功后， 那么server1会向server2,server3 都发一个同样的请求
- * 怎么解决server1发给server2，server2发给server3的问题? isisReplication防止死循环套娃调用
+ * 怎么解决server1发给server2，server2发给server3的问题?
+ * （if (peerEurekaNodes == Collections.EMPTY_LIST || isReplication) {
+ *                 return;
+ *             }）isisReplication防止死循环套娃调用
  * 判断完之后还会在判断是否是自己，会剔除自己同步，然后就是一路执行到jersey springcloud下的风险装的
  * resetTemplate
  */
