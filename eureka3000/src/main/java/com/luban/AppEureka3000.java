@@ -107,6 +107,25 @@ import java.util.Set;
  *             }）isisReplication防止死循环套娃调用
  * 判断完之后还会在判断是否是自己，会剔除自己同步，然后就是一路执行到jersey springcloud下的风险装的
  * resetTemplate
+ *
+ * 服务下架  是client主动发一个请求告诉eureka下架，client主动退出eureka的注册中心
+ * 服务剔除 eureka 的server主动监听到 客户端心跳连接很久没来 尝试主动去剔除这个服务
+ * 其实调用的都是同一个方法
+ * EurekaServerInitializerConfiguration （implements  ServletContextAware, SmartLifecycle(和spring容器中的finishRefresh有关，目前还未仔细研究那块代码), Ordered {）springcloud自动配置类
+ * 1.初始化eureka的配置
+ * 2.初始化eureka context(集群同步注册信息，启动一些定时器（服务剔除，自我保护机制监听。。。。），初始化自我保护的阈值)
+ * 是开启另一个新的线程去初始化eureka
+ * (spring容器finishrefresh调用strat 开启一个定时线程去执行服务剔除 postinit)
+ * public void start() {
+ * 		new Thread(new Runnable() {
+ * 	因为eureka作为中间件运行 ，不能影响springboot正常运行，所以开一个新线程开启
+ * 	eurekaServerBootstrap.contextInitialized(
+ * 	    initEurekaServerContext
+ * 	        this.registry.syncUp();同步集群(PeerAwareInstanceRegistryimpl )
+ * 	        expectedNumberOfRenewsPerMin 自我保护机制会用
+ *
+ * 	        EvictionTask())  TimerTask  服务剔除的定时器线程
+ * 	        会根据一个算法剔除15%的，并且是随机剔除的（有vip的概念）
  */
 public class AppEureka3000 {
 
