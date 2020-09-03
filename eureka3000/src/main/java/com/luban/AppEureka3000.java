@@ -126,7 +126,34 @@ import java.util.Set;
  *
  * 	        EvictionTask())  TimerTask  服务剔除的定时器线程
  * 	        会根据一个算法剔除15%的，并且是随机剔除的（有vip的概念）
+ *
+ * 	        eureka客户端获取服务列表全量获取增量获取（难点）
+ * 	        ApplicationsResource  getContainers 服务发现
+ * 	        useReadOnlyCache 是否打开只读缓存
+ * 	        responsecache缓存  payload = readWriteCacheMap.get(key); LoadingCache google的guava cache
+ *                     readOnlyCacheMap.put(key, payload);
+ * Eureka Server 缓存机制
+ * Eureka Server 为了提供响应效率，提供了两层的缓存结构，将 Eureka Client 所需要的注册信息，直接存储在缓存结构中。
+ *
+ * 第一层缓存：readOnlyCacheMap，本质上是 ConcurrentHashMap，依赖定时从 readWriteCacheMap 同步数据，默认时间为 30 秒。
+ *
+ * readOnlyCacheMap ： 是一个 CurrentHashMap 只读缓存，这个主要是为了供客户端获取注册信息时使用，其缓存更新，依赖于定时器的更新，通过和 readWriteCacheMap 的值做对比，如果数据不一致，则以 readWriteCacheMap 的数据为准。
+ *
+ * 第二层缓存：readWriteCacheMap，本质上是 Guava 缓存。
+ *
+ * readWriteCacheMap：readWriteCacheMap 的数据主要同步于存储层。当获取缓存时判断缓存中是否没有数据，如果不存在此数据，则通过 CacheLoader 的 load 方法去加载，加载成功之后将数据放入缓存，同时返回数据。
+ *
+ * readWriteCacheMap 缓存过期时间，默认为 180 秒，当服务下线、过期、注册、状态变更，都会来清除此缓存中的数据。
+ *
+ * Eureka Client 获取全量或者增量的数据时，会先从一级缓存中获取；如果一级缓存中不存在，再从二级缓存中获取；如果二级缓存也不存在，这时候先将存储层的数据同步到缓存中，再从缓存中获取。
+ *
+ * 通过 Eureka Server 的二层缓存机制，可以非常有效地提升 Eureka Server 的响应时间，通过数据存储层和缓存层的数据切割，根据使用场景来提供不同的数据支持。
+ *
+ *
+ *
+ * boolean fetchRegistry(boolean forceFullRegistryFetch) { 客户端全量还是增量获取
  */
+
 public class AppEureka3000 {
 
     public static void main(String[] args) {
