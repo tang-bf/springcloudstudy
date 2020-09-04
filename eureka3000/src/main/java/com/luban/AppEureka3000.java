@@ -152,6 +152,16 @@ import java.util.Set;
  *
  *
  * boolean fetchRegistry(boolean forceFullRegistryFetch) { 客户端全量还是增量获取
+ * eureka client 心跳续约失败的时候会尝试注册，注册失败又会30s重试机制
+ * getapplications 客户端缓存   AtomicReference<Application>
+ *     clientConfig.getRegistryRefreshSingleVipAddress()) user power order
+ *     例如user只想获取power服务，那么user配置下power的微服务。多个的话用逗号隔开
+ *       EurekaHttpResponse<Applications> httpResponse = eurekaTransport.queryClient.getDelta(remoteRegionsRef.get());
+ *       会有并发问题所以下面用了ReentrantLock();
+ *       if (fetchRegistryUpdateLock.tryLock()) {
+ *       每一个注册信息都会有actiontype 新增（注册） 下架  心跳（修改）
+ *      30s定时器执行 ConcurrentLinkedQueue<RecentlyChangedItem> recentlyChangedQueue  最近三分钟内改变的服务实例
+ *      每一个节点过期时间是三分钟
  */
 
 public class AppEureka3000 {
