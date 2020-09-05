@@ -2,6 +2,8 @@ package com.luban.controller;
 
 import com.luban.service.PowerFeignClient;
 import com.luban.util.R;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.ribbon.proxy.annotation.Hystrix;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,7 +40,11 @@ public class UserController {
 
         return R.success("返回成功",map);
     }
-
+public Object testfallback(){
+        return  "降级";
+}
+    @HystrixCommand(fallbackMethod = "testfallback")//服务降级  fallbackMethod 方法参数，返回值必须和原方法一样
+    // 10s中调用20次出错会进行熔断 不会再发restTemplate.getForOb请求，直接执行testfallback
     @RequestMapping("/getOrder.do")
     public R getOrder(){
         return R.success("操作成功",restTemplate.getForObject(ORDER_URL+"/getOrder.do",Object.class));

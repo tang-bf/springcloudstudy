@@ -5,6 +5,7 @@ import config.PowerRuleConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -69,6 +70,18 @@ import org.springframework.cloud.openfeign.FeignClient;
 //
 //执行到 AbstractLoadBalancerAwareClient executeWithLoadBalancer  用到了Observable 观察者模式的发布定阅
 //解析微服务名对应的ip地址
+@EnableHystrix
+/**
+ * org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+ * org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration,\
+ * org.springframework.cloud.netflix.hystrix.security.HystrixSecurityAutoConfiguration
+ *
+ * org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
+ * org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration
+ * HystrixCircuitBreakerConfiguration
+ * @Aspect
+ * public class HystrixCommandAspect {
+ */
 public class AppUserClient {
 
     public static void main(String[] args) {

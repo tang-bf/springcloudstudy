@@ -6,27 +6,43 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="user" />
-        <module name="power1" />
-        <module name="order" />
-        <module name="order1" />
+        <module name="config-server" />
         <module name="eureka3002" />
         <module name="eureka3001" />
         <module name="eureka3000" />
+        <module name="order1" />
+        <module name="power1" />
+        <module name="user" />
+        <module name="test-config-client" />
+        <module name="order" />
         <module name="power" />
+        <module name="config-server1" />
+        <module name="zipkin-server" />
+        <module name="zuul" />
+        <module name="9002" />
+        <module name="hystrix-dashboard" />
+        <module name="zuul9001" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="9002" options="-parameters" />
+      <module name="config-server" options="-parameters" />
+      <module name="config-server1" options="-parameters" />
       <module name="eureka3000" options="-parameters" />
       <module name="eureka3001" options="-parameters" />
       <module name="eureka3002" options="-parameters" />
+      <module name="hystrix-dashboard" options="-parameters" />
       <module name="order" options="-parameters" />
       <module name="order1" options="-parameters" />
       <module name="power" options="-parameters" />
       <module name="power1" options="-parameters" />
+      <module name="test-config-client" options="-parameters" />
       <module name="user" options="-parameters" />
+      <module name="zipkin-server" options="-parameters" />
+      <module name="zuul" options="-parameters" />
+      <module name="zuul9001" options="-parameters" />
     </option>
   </component>
 </project>
