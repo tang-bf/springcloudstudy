@@ -22,7 +22,12 @@ public class UserController {
     private static final String  POWER_URL="http://SERVER-POWER";
     private static final String  ORDER_URL="http://SERVER-ORDER";
 
-    @Autowired
+    @Autowired//改变了ioc 行为 进行了动态代理
+    // feign 首先把接口代理出来 加上发送请求的额逻辑 把代理后的类 再注册到容器中
+    //@EnableFeignClients @Import(FeignClientsRegistrar.class)
+    //FeignClientsRegistrar  ImportBeanDefinitionRegistrar,
+    //		ResourceLoaderAware, EnvironmentAware
+    // ImportBeanDefinitionRegistrar
     private  PowerFeignClient powerFeignClient;
 
 

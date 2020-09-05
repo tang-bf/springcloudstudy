@@ -18,7 +18,13 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
         @RibbonClient(name = "SERVER-ORDER",configuration = OrderRuleConfig.class),
         @RibbonClient(name = "SERVER-POWER",configuration = PowerRuleConfig.class)
 })
-@EnableFeignClients
+@EnableFeignClients//可加(defaultConfiguration = app配置类) 也可以进行配置隔离，也有子容器概念
+//改变了ioc 行为 进行了动态代理
+// feign 首先把接口代理出来 加上发送请求的额逻辑 把代理后的类 再注册到容器中
+//@EnableFeignClients @Import(FeignClientsRegistrar.class)
+//FeignClientsRegistrar  ImportBeanDefinitionRegistrar,
+//		ResourceLoaderAware, EnvironmentAware
+// ImportBeanDefinitionRegistrar
 public class AppUserClient {
 
     public static void main(String[] args) {
