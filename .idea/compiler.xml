@@ -13,13 +13,13 @@
         <module name="order1" />
         <module name="power1" />
         <module name="user" />
-        <module name="test-config-client" />
+        <module name="9002" />
         <module name="order" />
         <module name="power" />
+        <module name="zuul" />
+        <module name="test-config-client" />
         <module name="config-server1" />
         <module name="zipkin-server" />
-        <module name="zuul" />
-        <module name="9002" />
         <module name="hystrix-dashboard" />
         <module name="zuul9001" />
       </profile>

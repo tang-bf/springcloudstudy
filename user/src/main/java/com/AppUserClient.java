@@ -79,6 +79,9 @@ import org.springframework.cloud.openfeign.FeignClient;
  * org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
  * org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration
  * HystrixCircuitBreakerConfiguration
+ * @Bean
+ *        public HystrixCommandAspect
+ *
  * @Aspect
  * public class HystrixCommandAspect {
  */
